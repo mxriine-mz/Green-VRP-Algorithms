@@ -1,10 +1,8 @@
 # Green TSP Algorithms
 
-<div align="left">
-  <img src="https://img.shields.io/static/v1?label=&message=Python&color=3776AB&logo=python&logoColor=white" height="35" alt="Python" />
-  <img width="12" />
-  <img src="https://img.shields.io/static/v1?label=&message=Jupyter&color=F37626&logo=jupyter&logoColor=white" height="35" alt="Jupyter Notebook" />
-</div>
+![Python](https://img.shields.io/badge/Python-3.x-3776AB)
+![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626)
+![PEP 8](https://img.shields.io/badge/Code_Style-PEP_8-brightgreen)
 
 > **Optimizing today's logistics to protect tomorrow's environment.**
 
