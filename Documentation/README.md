@@ -13,12 +13,7 @@ L'étude est découpée en plusieurs jalons documentaires :
 * **[Livrable 1] Modélisation et Complexité (Format PDF)**
   * *Contenu :* Traduction du problème métier en modèle mathématique (graphes, variables de décision). Démonstration formelle de la complexité (NP-Complet) par réduction du problème du Voyageur de Commerce (TSP) vers le problème de routage de véhicules avec capacités (CVRP).
   * *Fichier :* Le rapport final est consultable directement au format **PDF**. *(Le code source LaTeX ayant servi à sa génération est également inclus).*
-
-* **[Livrable 2] Conception Algorithmique** *(À venir)*
-  * *Contenu :* Description détaillée des méthodes de résolution choisies (algorithmes exacts, heuristiques, ou méta-heuristiques) pour aborder le problème et ses contraintes (capacités des véhicules et équilibrage de charge).
-
-* **[Livrable 3] Étude Expérimentale** *(À venir)*
-  * *Contenu :* Analyse statistique du comportement expérimental des algorithmes. Comparaison des performances en termes de temps de calcul et d'optimisation des trajets sur différents jeux de données aléatoires.
+[...]
 
 ## Outils de rédaction
 
