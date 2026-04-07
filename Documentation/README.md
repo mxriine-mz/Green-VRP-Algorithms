@@ -1,55 +1,24 @@
-# QuickLaTeX
+# Documentation - Green TSP Algorithms
 
-QuickLaTeX is a LaTeX template project designed for fast and clean document creation, with a modern style and modular structure. It is ideal for reports, research papers, and other academic or professional documents.
+![LaTeX](https://img.shields.io/badge/LaTeX-Document-008080)
 
-## Features
-- Modular template structure for easy customization
-- Modern section and subsection styling
-- Customizable headers and footers
-- Predefined color schemes
-- Ready-to-use preamble with common packages
-- English comments for clarity
-- Makefile for easy compilation and cleaning
+Ce répertoire contient l'ensemble des livrables théoriques, analytiques et documentaires réalisés pour le projet d'optimisation de flotte logistique (CesiCDP x ADEME).
 
-## Project Structure
-```
-QuickLaTeX/
-├── LICENSE
-├── Makefile
-├── README.md
-├── main.tex
-├── contents/
-│   ├── researches.tex
-│   └── title.tex
-├── _Template/
-│   ├── preambule.tex
-│   ├── styles.tex
-│   ├── footer.tex
-│   ├── assets/
-│   │   └── img/
-```
+Contrairement au code source qui gère l'exécution algorithmique, ce dossier centralise les fondations mathématiques, les preuves de complexité et les analyses statistiques de nos méthodes de résolution.
 
-## Usage
-1. **Clone or copy the project.**
-2. Edit `main.tex` to include your content and desired modules from the `contents/` and `_Template/` folders.
-3. Add your images to `_Template/assets/img/` if needed.
-4. Compile the document using the provided Makefile:
-   ```sh
-   make
-   ```
-   or for a clean build:
-   ```sh
-   make mrproper
-   ```
+## Contenu du répertoire
 
-## Customization
-- Modify `_Template/styles.tex` to change colors, section styles, and page layout.
-- Edit `_Template/preambule.tex` to add or remove LaTeX packages as needed.
-- Update `_Template/footer.tex` for custom headers/footers or to add a logo.
+L'étude est découpée en plusieurs jalons documentaires :
 
-## Requirements
-- LaTeX distribution (TeX Live, MiKTeX, etc.)
-- `make` utility (optional, for using the Makefile)
+* **[Livrable 1] Modélisation et Complexité (Format PDF)**
+  * *Contenu :* Traduction du problème métier en modèle mathématique (graphes, variables de décision). Démonstration formelle de la complexité (NP-Complet) par réduction du problème du Voyageur de Commerce (TSP) vers le problème de routage de véhicules avec capacités (CVRP).
+  * *Fichier :* Le rapport final est consultable directement au format **PDF**. *(Le code source LaTeX ayant servi à sa génération est également inclus).*
+[...]
 
-## License
-This project is licensed under the terms of the LICENSE file provided.
+## Outils de rédaction
+
+* L'intégralité des rapports mathématiques est rédigée en **LaTeX** (puis exportée en **PDF**) pour garantir la rigueur de la notation scientifique.
+* Les aspects interactifs et le storytelling (démonstrations de code mêlées au texte) sont exportés depuis nos **Jupyter Notebooks**.
+
+---
+*Projet réalisé dans le cadre de notre formation CESI*
