@@ -30,8 +30,7 @@ Dans le cadre de l'appel à manifestation d'intérêt lancé par l'ADEME, le lab
 
 Le défi algorithmique central consiste à calculer une tournée sur un réseau routier permettant de relier un sous-ensemble défini de villes, puis de revenir au point de départ.
 
-\noindent L'objectif est de minimiser la durée (ou la distance) totale de cette tournée. Bien que ce problème s'apparente au classique Problème du \textbf{Voyageur de Commerce (TSP)}, la réalité du terrain impose des défis supplémentaires.
-
+\noindent L’objectif est de minimiser la distance totale ou la durée globale des trajets effectués par une flotte de véhicules pour desservir un ensemble de clients. Bien que ce défi relève du Problème de \textbf{Tournées de Véhicules (VRP)}, un enjeu central de la logistique moderne, la réalité du terrain impose des défis supplémentaires.
 \subsubsection*{Contraintes choisies}
 \phantomsection
 \addcontentsline{toc}{subsubsection}{Contraintes choisies}
@@ -62,36 +61,6 @@ Le réseau routier est modélisé par un graphe complet orienté et pondéré $G
     \item \textbf{Demandes :} Chaque ville $v_i$ nécessite la livraison d'une quantité de marchandises $q_i$. La demande du dépôt est $q_0 = 0$.
     \item \textbf{Véhicules :} Une flotte de $K$ véhicules, ayant chacun une capacité maximale $Q$.
 \end{itemize}
-
-\subsubsection*{Variables de Décision}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Variables de Décision}
-
-Nous définissons une variable binaire $x_{ijk}$ :
-$$x_{ijk} \in \{0, 1\} \quad \forall i,j \in V, \forall k \in \{1, \dots, K\}$$
-\begin{itemize}
-    \item $x_{ijk} = 1$ si le véhicule $k$ emprunte la route du nœud $i$ au nœud $j$.
-    \item $x_{ijk} = 0$ sinon.
-\end{itemize}
-
-\subsubsection*{Objectif à optimiser}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Objectif à optimiser}
-
-L'objectif est de minimiser le coût total de l'ensemble des tournées :
-$$\text{Minimiser } Z = \sum_{k=1}^{K} \sum_{i=0}^{n} \sum_{j=0}^{n} c_{ij} x_{ijk}$$
-\textit{(La contrainte d'équilibrage de charge sera introduite sous forme de pénalité de variance dans la fonction d'évaluation de nos futurs algorithmes).}
-
-\subsubsection*{Contraintes structurelles}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Contraintes structurelles}
-
-\begin{enumerate}
-    \item \textbf{Unicité de visite :} Chaque ville est visitée exactement une fois par un seul véhicule.
-    \item \textbf{Continuité :} Tout véhicule entrant dans une ville doit en ressortir.
-    \item \textbf{Respect de la capacité :} La somme des demandes $q_i$ des villes visitées par un véhicule $k$ ne doit pas excéder $Q$ :
-    $$\sum_{i=1}^{n} q_i \sum_{j=0}^{n} x_{ijk} \leq Q \quad \forall k \in \{1, \dots, K\}$$
-\end{enumerate}
 
 \subsection*{Étude et Démonstration de la Complexité Théorique}
 \phantomsection
@@ -170,4 +139,6 @@ Pour prouver formellement la NP-difficulté, nous démontrons par restriction qu
     \item \textbf{Dantzig, G. B., \& Ramser, J. H. (1959).} \textit{The Truck Dispatching Problem}. Management Science, 6(1), 80-91.
     \item \textbf{Garey, M. R., \& Johnson, D. S. (1979).} \textit{Computers and Intractability: A Guide to the Theory of NP-Completeness}. W. H. Freeman \& Co.
     \item \textbf{Toth, P., \& Vigo, D. (2014).} \textit{Vehicle Routing: Problems, Methods, and Applications}. Society for Industrial and Applied Mathematics (SIAM).
+    \item \textbf{AIMMS. (s. d.).} \textit{CVRP Formulation}. AIMMS Optimization Education Series. \url{https://how-to.aimms.com/Articles/332/332-Formulation-CVRP.html} 
+    \item \textbf{Google Developers. (2024).} \textit{Le problème de tournée de véhicules avec capacités (CVRP)}. Google OR-Tools. \url{https://developers.google.com/optimization/routing/cvrp?hl=fr}
 \end{itemize}
