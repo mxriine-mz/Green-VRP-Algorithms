@@ -79,13 +79,57 @@ Pour évaluer la complexité, nous définissons le problème de décision associ
 \phantomsection
 \addcontentsline{toc}{subsubsection}{Appartenance à la classe NP}
 
-Un problème est dans la classe NP si la validité d'une solution candidate (certificat) peut être vérifiée en temps polynomial par rapport à la taille de l'entrée $n$. 
+Un problème est dans la classe NP si la validité d'une solution candidate (certificat) peut être vérifiée en temps polynomial par rapport à la taille de l'entrée $n$.
 Pour un ensemble de parcours donné, nous pouvons :
 \begin{enumerate}
     \item Vérifier que chaque ville est visitée exactement une fois (Temps $\mathcal{O}(n)$).
     \item Sommer les demandes $q_i$ par véhicule pour vérifier que le total est $\leq Q$ (Temps $\mathcal{O}(n)$).
     \item Additionner les coûts $c_{ij}$ pour vérifier que la somme est $\leq L$ (Temps $\mathcal{O}(n)$).
 \end{enumerate}
+
+
+\begin{minipage}{\linewidth }
+\begin{lstlisting}[caption={Algorithme de vérification de solution}]
+Variables:
+    Liste sommetsVisites
+    Réel tempsTotal <- 0
+    Entier n <- taille(solution)
+
+Début:
+    # 1. Vérification de la complétude
+    Si n != G.nombreSommets():
+        Renvoyer Faux
+    Fin Si
+
+    Pour i allant de 0 à n - 1:
+        Sommet actuel <- solution[i]
+
+        # 2. Vérifier si le sommet existe dans le graphe et n'est pas un doublon
+        Si NON G.existeSommet(actuel) OU actuel appartient à sommetsVisites:
+            Renvoyer Faux
+        Fin Si
+        sommetsVisites.ajouter(actuel)
+
+        # 3. Calcul du temps et continuité du chemin
+        Sommet suivant <- solution[i + 1]
+        Arrete arc <- G.trouverArrete(actuel, suivant)
+
+        Si estVide(arc):
+            Renvoyer Faux
+        Sinon:
+            tempsTotal <- tempsTotal + arc.poids
+        Fin Si
+    Fin Pour
+
+    # 4. Vérification de la contrainte de temps
+    Si tempsTotal > tempsMax:
+        Renvoyer Faux
+    Fin Si
+
+    Renvoyer Vrai
+Fin
+\end{lstlisting}
+\end{minipage}
 Les vérifications s'effectuant en temps polynomial, le problème appartient bien à NP.
 
 \subsubsection*{Démonstration de la NP-difficulté (par restriction)}
