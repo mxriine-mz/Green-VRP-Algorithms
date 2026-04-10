@@ -62,6 +62,36 @@ Le réseau routier est modélisé par un graphe complet orienté et pondéré $G
     \item \textbf{Véhicules :} Une flotte de $K$ véhicules, ayant chacun une capacité maximale $Q$.
 \end{itemize}
 
+\subsubsection*{Variables de Décision}
+\phantomsection
+\addcontentsline{toc}{subsubsection}{Variables de Décision}
+
+Nous définissons une variable binaire $x_{ijk}$ :
+$$x_{ijk} \in \{0, 1\} \quad \forall i,j \in V, \forall k \in \{1, \dots, K\}$$
+\begin{itemize}
+    \item $x_{ijk} = 1$ si le véhicule $k$ emprunte la route du nœud $i$ au nœud $j$.
+    \item $x_{ijk} = 0$ sinon.
+\end{itemize}
+
+\subsubsection*{Objectif à optimiser}
+\phantomsection
+\addcontentsline{toc}{subsubsection}{Objectif à optimiser}
+
+L'objectif est de minimiser le coût total de l'ensemble des tournées :
+$$\text{Minimiser } Z = \sum_{k=1}^{K} \sum_{i=0}^{n} \sum_{j=0}^{n} c_{ij} x_{ijk}$$
+\textit{(La contrainte d'équilibrage de charge sera introduite sous forme de pénalité de variance dans la fonction d'évaluation de nos futurs algorithmes).}
+
+\subsubsection*{Contraintes structurelles}
+\phantomsection
+\addcontentsline{toc}{subsubsection}{Contraintes structurelles}
+
+\begin{enumerate}
+    \item \textbf{Unicité de visite :} Chaque ville est visitée exactement une fois par un seul véhicule.
+    \item \textbf{Continuité :} Tout véhicule entrant dans une ville doit en ressortir.
+    \item \textbf{Respect de la capacité :} La somme des demandes $q_i$ des villes visitées par un véhicule $k$ ne doit pas excéder $Q$ :
+    $$\sum_{i=1}^{n} q_i \sum_{j=0}^{n} x_{ijk} \leq Q \quad \forall k \in \{1, \dots, K\}$$
+\end{enumerate}
+
 \subsection*{Étude et Démonstration de la Complexité Théorique}
 \phantomsection
 \addcontentsline{toc}{subsection}{Étude et Démonstration de la Complexité Théorique}
