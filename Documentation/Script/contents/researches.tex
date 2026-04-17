@@ -55,41 +55,50 @@ Pour traiter ce problème algorithmiquement, nous le traduisons mathématiquemen
 
 Le réseau routier est modélisé par un graphe complet orienté et pondéré $G = (V, E)$.
 \begin{itemize}
-    \item \textbf{Sommets :} $V = \{v_0, v_1, \dots, v_n\}$ où $v_0$ représente le dépôt central (départ/arrivée) et $V \setminus \{v_0\}$ l'ensemble des villes à livrer.
+    \item \textbf{Sommets :} $V = \{v_0, v_1, \dots, v_n\}$ où $v_0$ représente le dépôt central et $V \setminus \{v_0\}$ l'ensemble des villes.
     \item \textbf{Arêtes :} $E$ représente l'ensemble des routes reliant les villes.
-    \item \textbf{Coûts :} Chaque arête $(v_i, v_j)$ a un poids $c_{ij}$ (distance ou temps de trajet).
-    \item \textbf{Demandes :} Chaque ville $v_i$ nécessite la livraison d'une quantité de marchandises $q_i$. La demande du dépôt est $q_0 = 0$.
-    \item \textbf{Véhicules :} Une flotte de $K$ véhicules, ayant chacun une capacité maximale $Q$.
+    \item \textbf{Coûts :} Chaque arête $(v_i, v_j)$ a un coût de trajet $c_{ij}$.
+    \item \textbf{Demandes :} Chaque ville $v_i$ nécessite une quantité $q_i$. Le total des gens/colis à transporter est $Q_{total}$.
+    \item \textbf{Véhicules :} Une flotte de $K$ véhicules (indexés par $k$), ayant chacun une capacité maximale $Q_{max}$.
 \end{itemize}
 
 \subsubsection*{Variables de Décision}
 \phantomsection
 \addcontentsline{toc}{subsubsection}{Variables de Décision}
 
-Nous définissons une variable binaire $x_{ijk}$ :
-$$x_{ijk} \in \{0, 1\} \quad \forall i,j \in V, \forall k \in \{1, \dots, K\}$$
+Nous définissons une variable binaire $x_{ijk}$ pour décider si une route est utilisée :
+$$x_{ijk} \in \{0, 1\} \quad \forall i,j \in \{0, \dots, n\}, \forall k \in \{1, \dots, K\}$$
 \begin{itemize}
-    \item $x_{ijk} = 1$ si le véhicule $k$ emprunte la route du nœud $i$ au nœud $j$.
+    \item $x_{ijk} = 1$ si le véhicule $k$ effectue le trajet de la ville $i$ vers la ville $j$.
     \item $x_{ijk} = 0$ sinon.
 \end{itemize}
 
-\subsubsection*{Objectif à optimiser}
+\subsubsection*{Fonction Objectif}
 \phantomsection
-\addcontentsline{toc}{subsubsection}{Objectif à optimiser}
+\addcontentsline{toc}{subsubsection}{Fonction Objectif}
 
-L'objectif est de minimiser le coût total de l'ensemble des tournées :
-$$\text{Minimiser } Z = \sum_{k=1}^{K} \sum_{i=0}^{n} \sum_{j=0}^{n} c_{ij} x_{ijk}$$
-\textit{(La contrainte d'équilibrage de charge sera introduite sous forme de pénalité de variance dans la fonction d'évaluation de nos futurs algorithmes).}
+L'objectif est de minimiser le coût total des trajets effectués par l'ensemble de la flotte :
+$$\text{Min } Z = \sum_{k=1}^{K} \sum_{i=0}^{n} \sum_{j=0}^{n} c_{ij} x_{ijk}$$
 
-\subsubsection*{Contraintes structurelles}
+\subsubsection*{Contraintes (SC)}
 \phantomsection
-\addcontentsline{toc}{subsubsection}{Contraintes structurelles}
+\addcontentsline{toc}{subsubsection}{Contraintes (SC)}
 
 \begin{enumerate}
-    \item \textbf{Unicité de visite :} Chaque ville est visitée exactement une fois par un seul véhicule.
-    \item \textbf{Continuité :} Tout véhicule entrant dans une ville doit en ressortir.
-    \item \textbf{Respect de la capacité :} La somme des demandes $q_i$ des villes visitées par un véhicule $k$ ne doit pas excéder $Q$ :
-    $$\sum_{i=1}^{n} q_i \sum_{j=0}^{n} x_{ijk} \leq Q \quad \forall k \in \{1, \dots, K\}$$
+    \item \textbf{Unicité de visite :} Chaque ville doit être visitée exactement une fois par un seul véhicule.
+    $$\sum_{k=1}^{K} \sum_{i=0}^{n} x_{ijk} = 1 \quad \forall j \in \{1, \dots, n\}$$
+
+    \item \textbf{Conservation du flux (Retour au dépôt) :} Tout véhicule arrivant à une ville (ou au dépôt) doit en repartir.
+    $$\sum_{i=0}^{n} x_{i0k} - \sum_{j=0}^{n} x_{0jk} = 0 \quad \forall k \in \{1, \dots, K\}$$
+
+    \item \textbf{Transport total :} La somme des capacités mobilisées doit couvrir le besoin total.
+    $$\sum_{k=1}^{K} q_k = Q_{total}$$
+
+    \item \textbf{Capacité des véhicules :} Les colis/personnes transportés par le véhicule $k$ ne doivent pas excéder sa charge maximale $Q_{max}$.
+    $$\sum_{i=0}^{n} \sum_{j=0}^{n} q_k x_{ijk} \leq Q_{max} \quad \forall k \in \{1, \dots, K\}$$
+
+    \item \textbf{Activation des véhicules :} S'assurer que tous les véhicules partent au plus une fois du dépôt.
+    $$\sum_{j=1}^{n} x_{0jk} \leq 1 \quad \forall k \in \{1, \dots, K\}$$
 \end{enumerate}
 
 \subsection*{Étude et Démonstration de la Complexité Théorique}
