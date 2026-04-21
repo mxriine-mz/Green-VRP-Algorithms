@@ -9,33 +9,25 @@ Face aux défis climatiques actuels, la transition écologique impose de repense
 
 \newpage
 
-\section*{Chapter 1 - Modélisation}
-\addcontentsline{toc}{section}{Chapter 1 - Modélisation}
+\section{Contextualisation}
 
-\subsection*{Présentation du problème et de son contexte}
-\phantomsection
-\addcontentsline{toc}{subsection}{Présentation du problème et de son contexte}
+\subsection{Contexte}
 
-\subsubsection*{Contexte}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Contexte}
 
 Dans le cadre de l'appel à manifestation d'intérêt lancé par l'ADEME, le laboratoire CesiCDP se positionne pour concevoir de nouvelles solutions de mobilité multimodale intelligente. Face aux défis climatiques et à l'augmentation des flux de marchandises, l'enjeu est d'optimiser la logistique du transport (distribution, livraison, ramassage).
 
 \noindent L'objectif environnemental est direct : limiter les déplacements inutiles et optimiser la gestion des ressources pour réduire drastiquement la consommation de carburant et les émissions polluantes.
 
-\subsubsection*{Problématique}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Problématique}
+\subsection{Problématique}
+
 
 Le défi algorithmique central consiste à calculer une tournée sur un réseau routier permettant de relier un sous-ensemble défini de villes, puis de revenir au point de départ.
 
-\noindent L’objectif est de minimiser la distance totale ou la durée globale des trajets effectués par une flotte de véhicules pour desservir un ensemble de clients. Bien que ce défi relève du Problème de \textbf{Tournées de Véhicules (VRP)}, un enjeu central de la logistique moderne, la réalité du terrain impose des défis supplémentaires.
-\subsubsection*{Contraintes choisies}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Contraintes choisies}
+\noindent L’objectif est de minimiser la distance totale ou la durée globale des trajets effectués par une flotte de véhicules pour desservir un ensemble de clients. Bien que ce défi relève du Problème de \textbf{Tournées de Véhicules (VRP)}~\hyperlink{ref:dantzig1959}{[1]}\hyperlink{ref:toth2014}{[5]}, un enjeu central de la logistique moderne, la réalité du terrain impose des défis supplémentaires.
+\subsection{Contraintes choisies}
 
-Pour garantir un démonstrateur réaliste et applicable à l'industrie, nous intégrons les contraintes suivantes, transformant le problème en un Problème de Tournées de Véhicules avec Capacités (CVRP) :
+
+Pour garantir un démonstrateur réaliste et applicable à l'industrie, nous intégrons les contraintes suivantes, transformant le problème en un Problème de Tournées de Véhicules avec Capacités (CVRP)~\hyperlink{ref:toth2014}{[5]}\hyperlink{ref:aimms}{[6]}\hyperlink{ref:ortools}{[7]} :
 \begin{itemize}
     \item \textbf{Utilisation de plusieurs véhicules :} Il peut y avoir plusieurs sous-tournées plutôt qu'une seule grande tournée.
     \item \textbf{Capacité des véhicules :} Si la contrainte précédente a été choisie, chaque véhicule a une capacité limite pour transporter des marchandises ou des passagers.
@@ -43,15 +35,11 @@ Pour garantir un démonstrateur réaliste et applicable à l'industrie, nous int
 
 \newpage
 
-\subsection*{Représentation formelle}
-\phantomsection
-\addcontentsline{toc}{subsection}{Représentation formelle}
+\section{Représentation formelle}
 
 Pour traiter ce problème algorithmiquement, nous le traduisons mathématiquement à l'aide de la théorie des graphes.
 
-\subsubsection*{Les Données (Le Réseau)}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Les Données (Le Réseau)}
+\subsection{Les Données (Le Réseau)}
 
 Le réseau routier est modélisé par un graphe complet orienté et pondéré $G = (V, E)$.
 \begin{itemize}
@@ -62,27 +50,30 @@ Le réseau routier est modélisé par un graphe complet orienté et pondéré $G
     \item \textbf{Véhicules :} Une flotte de $K$ véhicules (indexés par $k$), ayant chacun une capacité maximale $Q_{max}$.
 \end{itemize}
 
-\subsubsection*{Variables de Décision}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Variables de Décision}
+\subsection{Variables de Décision}
 
-Nous définissons une variable binaire $x_{ijk}$ pour décider si une route est utilisée :
+Nous définissons deux familles de variables : une variable binaire $x_{ijk}$ (décision de trajet) et une variable continue $u_i$ (charge cumulée).
+
+\paragraph{Variable de décision binaire.} $x_{ijk}$ indique si une route est empruntée :
 $$x_{ijk} \in \{0, 1\} \quad \forall i,j \in \{0, \dots, n\}, \forall k \in \{1, \dots, K\}$$
 \begin{itemize}
     \item $x_{ijk} = 1$ si le véhicule $k$ effectue le trajet de la ville $i$ vers la ville $j$.
     \item $x_{ijk} = 0$ sinon.
 \end{itemize}
 
-\subsubsection*{Fonction Objectif}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Fonction Objectif}
+\paragraph{Variable de flux / charge cumulée.} $u_i$ représente la charge cumulée dans le véhicule \textit{après} avoir visité le client $i$ :
+$$u_i \in \mathbb{R}_{+} \quad \forall i \in \{1, \dots, n\}$$
+\begin{itemize}
+    \item \textit{Exemple :} si un véhicule part du dépôt et livre $10$~kg au client $1$, alors $u_1 = 10$. S'il se rend ensuite au client $2$ dont la demande est $5$~kg, alors $u_2 = 15$.
+    \item Cette variable est indispensable à la formulation MTZ (Miller-Tucker-Zemlin) utilisée plus bas pour éliminer les sous-tours tout en intégrant la capacité~\hyperlink{ref:mtz1960}{[2]}.
+\end{itemize}
+
+\subsection{Fonction Objectif}
 
 L'objectif est de minimiser le coût total des trajets effectués par l'ensemble de la flotte :
 $$\text{Min } Z = \sum_{k=1}^{K} \sum_{i=0}^{n} \sum_{j=0}^{n} c_{ij} x_{ijk}$$
 
-\subsubsection*{Contraintes (SC)}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Contraintes (SC)}
+\subsection{Contraintes (SC)}
 
 \begin{enumerate}
     \item \textbf{Unicité de visite :} Chaque ville doit être visitée exactement une fois par un seul véhicule.
@@ -99,26 +90,60 @@ $$\text{Min } Z = \sum_{k=1}^{K} \sum_{i=0}^{n} \sum_{j=0}^{n} c_{ij} x_{ijk}$$
 
     \item \textbf{Activation des véhicules :} S'assurer que tous les véhicules partent au plus une fois du dépôt.
     $$\sum_{j=1}^{n} x_{0jk} \leq 1 \quad \forall k \in \{1, \dots, K\}$$
+
+    \item \textbf{Élimination des sous-tours et capacité (formulation MTZ)~\hyperlink{ref:mtz1960}{[2]} :} pour toute arête $(i,j)$ réellement empruntée par un véhicule ($\sum_{k} x_{ijk} = 1$), la charge cumulée au point~$j$ doit s'incrémenter de la demande $q_j$. La constante $Q_{max}$ joue le rôle de \textit{Big-M} : elle désactive la contrainte quand l'arête n'est pas utilisée.
+    $$u_j \geq u_i + q_j - Q_{max}\left(1 - \sum_{k=1}^{K} x_{ijk}\right) \quad \forall (i,j),\ i \neq j,\ j \neq 0$$
+    $$q_i \leq u_i \leq Q_{max} \quad \forall i \in \{1, \dots, n\}$$
 \end{enumerate}
 
-\subsection*{Étude et Démonstration de la Complexité Théorique}
-\phantomsection
-\addcontentsline{toc}{subsection}{Étude et Démonstration de la Complexité Théorique}
+\subsection{Décortiquons la formule MTZ}
 
-L'étude des propriétés théoriques de notre modèle (le CVRP) révèle qu'il s'agit d'un problème combinatoire complexe combinant deux dimensions difficiles : l'ordre de visite (Parcours) et la répartition des charges dans une flotte limitée (Bin Packing).
+Pour que l'algorithme comprenne, on définit quatre éléments clés qui composent cette contrainte :
 
-\subsubsection*{Version décisionnelle}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Version décisionnelle}
+\begin{itemize}
+    \item \textbf{$x_{ij}$ (Variable de décision binaire) :}
+    \begin{itemize}
+        \item Vaut $1$ si un véhicule parcourt le trajet entre la ville $i$ et la ville $j$.
+        \item Vaut $0$ sinon.
+        \item C'est elle qui \textit{dessine la carte finale} des tournées. Dans notre modèle à flotte hétérogène, on l'obtient par agrégation sur les véhicules : $x_{ij} = \sum_{k=1}^{K} x_{ijk}$.
+    \end{itemize}
+
+    \item \textbf{$u_i$ (Variable de flux / charge) :}
+    \begin{itemize}
+        \item C'est une variable continue qui représente la \textbf{charge cumulée} dans le véhicule \textit{après} avoir visité le client $i$.
+        \item \textit{Exemple :} si un véhicule part du dépôt et livre $10$~kg au client $1$, alors $u_1 = 10$. S'il va ensuite au client $2$ qui demande $5$~kg, alors $u_2 = 15$.
+    \end{itemize}
+
+    \item \textbf{$q_j$ (La demande) :}
+    \begin{itemize}
+        \item C'est une constante : la quantité de marchandises que le client $j$ a commandée.
+    \end{itemize}
+
+    \item \textbf{$Q_{max}$ (La capacité) :}
+    \begin{itemize}
+        \item C'est la constante du véhicule (ex.\ : $1000$~kg).
+        \item Elle sert ici de \textit{Big-M} : une valeur suffisamment grande qui permet d'\textbf{activer} ou de \textbf{désactiver} la contrainte selon que l'arête $(i,j)$ est empruntée ou non.
+        \begin{itemize}
+            \item Si $\sum_k x_{ijk} = 1$ (arête empruntée) : la contrainte devient $u_j \geq u_i + q_j$, ce qui force l'incrémentation correcte de la charge.
+            \item Si $\sum_k x_{ijk} = 0$ (arête non empruntée) : le terme $-Q_{max}$ rend la borne inférieure négative, donc la contrainte est \textit{inactive} (toujours vérifiée).
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+\section{Étude et Démonstration de la Complexité Théorique}
+
+L'étude des propriétés théoriques de notre modèle (le CVRP~\hyperlink{ref:toth2014}{[5]}) révèle qu'il s'agit d'un problème combinatoire complexe combinant deux dimensions difficiles : l'ordre de visite (Parcours) et la répartition des charges dans une flotte limitée (Bin Packing~\hyperlink{ref:martello1990}{[4]}).
+
+\subsection{Version décisionnelle}
 
 Pour évaluer la complexité, nous définissons le problème de décision associé : \\
 \textit{Existe-t-il un ensemble de tournées valides (commençant au dépôt, visitant chaque ville une fois sans dépasser la capacité $Q$) dont le coût total est $\leq L$ ?}
 
-\subsubsection*{Appartenance à la classe NP}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Appartenance à la classe NP}
+\subsection{Appartenance à la classe NP}
 
-Un problème est dans la classe NP si la validité d'une solution candidate (certificat) peut être vérifiée en temps polynomial par rapport à la taille de l'entrée $n$.
+Un problème est dans la classe NP~\hyperlink{ref:garey1979}{[3]} si la validité d'une solution candidate (certificat) peut être vérifiée en temps polynomial par rapport à la taille de l'entrée $n$.
 Pour un ensemble de parcours donné, nous pouvons :
 \begin{enumerate}
     \item Vérifier que chaque ville est visitée exactement une fois (Temps $\mathcal{O}(n)$).
@@ -127,8 +152,8 @@ Pour un ensemble de parcours donné, nous pouvons :
 \end{enumerate}
 
 
-\begin{minipage}{\linewidth }
-\begin{lstlisting}[caption={Algorithme de vérification de solution}]
+\needspace{20\baselineskip}
+\begin{lstlisting}[caption={Algorithme de vérification de solution},breaklines=true]
 Variables:
     Liste sommetsVisites
     Réel tempsTotal <- 0
@@ -143,8 +168,9 @@ Début:
     Pour i allant de 0 à n - 1:
         Sommet actuel <- solution[i]
 
-        # 2. Vérifier si le sommet existe dans le graphe et n'est pas un doublon
-        Si NON G.existeSommet(actuel) OU actuel appartient à sommetsVisites:
+        # 2. Vérifier l'existence du sommet et l'absence de doublon
+        Si NON G.existeSommet(actuel)
+           OU actuel appartient à sommetsVisites:
             Renvoyer Faux
         Fin Si
         sommetsVisites.ajouter(actuel)
@@ -168,60 +194,60 @@ Début:
     Renvoyer Vrai
 Fin
 \end{lstlisting}
-\end{minipage}
-Les vérifications s'effectuant en temps polynomial, le problème appartient bien à NP.
 
-\subsubsection*{Démonstration de la NP-difficulté (par restriction)}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Démonstration de la NP-difficulté (par restriction)}
+\vspace{0.5cm}
 
-Pour prouver formellement la NP-difficulté, nous démontrons par restriction que notre problème contient un cas particulier déjà connu comme NP-difficile : le Problème du Voyageur de Commerce (TSP).
+\noindent Les vérifications s'effectuant en temps polynomial, le problème appartient bien à NP.
+
+\newpage
+
+\subsection{Démonstration de la NP-difficulté (par restriction)}
+
+Pour prouver formellement la NP-difficulté~\hyperlink{ref:garey1979}{[3]}, nous démontrons par restriction que notre problème contient un cas particulier déjà connu comme NP-difficile : le Problème du Voyageur de Commerce (TSP)~\hyperlink{ref:garey1979}{[3]}.
 \begin{enumerate}
-    \item \textbf{Problème source :} Le TSP est prouvé NP-difficile.
+    \item \textbf{Problème source :} Le TSP est prouvé NP-complet~\hyperlink{ref:garey1979}{[3]}.
     \item \textbf{Réduction :} Fixons les paramètres de notre problème avec $K = 1$ véhicule, et une capacité $Q$ suffisamment grande pour couvrir la somme de toutes les demandes ($\sum q_i \leq Q$).
     \item \textbf{Équivalence :} Dans ce cas de figure, la contrainte de capacité $Q$ disparaît de fait. Le problème se réduit exactement à trouver le cycle hamiltonien de coût minimal traversant toutes les villes, ce qui est la définition stricte du TSP.
     \item \textbf{Conclusion :} Puisque notre modèle peut se réduire au TSP, il est au moins aussi difficile à résoudre. Il est donc NP-difficile.
 \end{enumerate}
 
-\newpage
+\subsection{Conclusion sur la complexité}
 
-\subsubsection*{Conclusion sur la complexité}
-\phantomsection
-\addcontentsline{toc}{subsubsection}{Conclusion sur la complexité}
-
-Étant simultanément dans NP et NP-difficile, notre problème d'optimisation de tournées avec capacités est \textbf{NP-Complet}. Il est donc hautement improbable qu'un algorithme exact puisse le résoudre en temps polynomial pour de grandes instances de réseaux routiers, justifiant l'utilisation future de méthodes heuristiques ou méta-heuristiques.
+Étant simultanément dans NP et NP-difficile, notre problème d'optimisation de tournées avec capacités est \textbf{NP-Complet}~\hyperlink{ref:garey1979}{[3]}. Il est donc hautement improbable qu'un algorithme exact puisse le résoudre en temps polynomial pour de grandes instances de réseaux routiers, justifiant l'utilisation future de méthodes heuristiques ou méta-heuristiques~\hyperlink{ref:toth2014}{[5]}.
 
 \newpage
 
-\section*{Chapter 2 - Implémentation et exploitation}
-\addcontentsline{toc}{section}{Chapter 2 - Implémentation et exploitation}
+\section{Implémentation et exploitation}
 
-\subsection*{Chapter 2 - SubSection 1}
-\phantomsection
-\addcontentsline{toc}{subsection}{Chapter 2 - SubSection 1}
+\subsection*{SubSection 1}
 
-\subsection*{Chapter 2 - SubSection 2}
-\phantomsection
-\addcontentsline{toc}{subsection}{Chapter 2 - SubSection 2}
+\subsection*{SubSection 2}
 
 \newpage
 
 \section*{Conclusion}
-\addcontentsline{toc}{section}{Conclusion}
 
 \newpage
 
 \section*{Appendices}
-\addcontentsline{toc}{section}{Appendices}
 
 \newpage
 
-\section*{Bibliographiques}
-\addcontentsline{toc}{section}{Bibliographiques}
+\section*{Bibliographie}
+\addcontentsline{toc}{section}{Bibliographie}
 \begin{itemize}
-    \item \textbf{Dantzig, G. B., \& Ramser, J. H. (1959).} \textit{The Truck Dispatching Problem}. Management Science, 6(1), 80-91.
-    \item \textbf{Garey, M. R., \& Johnson, D. S. (1979).} \textit{Computers and Intractability: A Guide to the Theory of NP-Completeness}. W. H. Freeman \& Co.
-    \item \textbf{Toth, P., \& Vigo, D. (2014).} \textit{Vehicle Routing: Problems, Methods, and Applications}. Society for Industrial and Applied Mathematics (SIAM).
-    \item \textbf{AIMMS. (s. d.).} \textit{CVRP Formulation}. AIMMS Optimization Education Series. \url{https://how-to.aimms.com/Articles/332/332-Formulation-CVRP.html} 
-    \item \textbf{Google Developers. (2024).} \textit{Le problème de tournée de véhicules avec capacités (CVRP)}. Google OR-Tools. \url{https://developers.google.com/optimization/routing/cvrp?hl=fr}
+    \item[\hypertarget{ref:dantzig1959}{[1]}] \textbf{Dantzig, G. B., \& Ramser, J. H. (1959).} \textit{The Truck Dispatching Problem}. Management Science, 6(1), 80-91.
+    \item[\hypertarget{ref:mtz1960}{[2]}] \textbf{Miller, C. E., Tucker, A. W., \& Zemlin, R. A. (1960).} \textit{Integer Programming Formulation of Traveling Salesman Problems}. Journal of the ACM, 7(4), 326-329.
+    \item[\hypertarget{ref:garey1979}{[3]}] \textbf{Garey, M. R., \& Johnson, D. S. (1979).} \textit{Computers and Intractability: A Guide to the Theory of NP-Completeness}. W. H. Freeman \& Co.
+    \item[\hypertarget{ref:martello1990}{[4]}] \textbf{Martello, S., \& Toth, P. (1990).} \textit{Knapsack Problems: Algorithms and Computer Implementations}. John Wiley \& Sons. (Chap. 8 : Bin-Packing Problem).
+    \item[\hypertarget{ref:toth2014}{[5]}] \textbf{Toth, P., \& Vigo, D. (2014).} \textit{Vehicle Routing: Problems, Methods, and Applications}. Society for Industrial and Applied Mathematics (SIAM).
+\end{itemize}
+
+\newpage
+
+\section*{Sitographie}
+\addcontentsline{toc}{section}{Sitographie}
+\begin{itemize}
+    \item[\hypertarget{ref:aimms}{[6]}] \textbf{AIMMS. (s. d.).} \textit{CVRP Formulation}. AIMMS Optimization Education Series. \url{https://how-to.aimms.com/Articles/332/332-Formulation-CVRP.html}
+    \item[\hypertarget{ref:ortools}{[7]}] \textbf{Google Developers. (2024).} \textit{Le problème de tournée de véhicules avec capacités (CVRP)}. Google OR-Tools. \url{https://developers.google.com/optimization/routing/cvrp?hl=fr}
 \end{itemize}
